@@ -6,8 +6,8 @@ from fbprophet import Prophet
 
 
 
-access = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
-secret = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
+access = "업비트에서 받은키"
+secret = "업비트에서 받은키"
 
 
 def get_target_price(ticker, k):
