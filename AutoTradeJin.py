@@ -25,7 +25,7 @@ def start_autotrade():
         except_items = ""  # 매수제외종목
         buy_amt = 50000      # 매수금액
         # 매도 
-        sell_pcnt = 3      # 매도 수익률
+        sell_pcnt = 6      # 매도 수익률
         dcnt_pcnt =-1      # 고점대비 하락률
 
         upbit.set_loglevel(log_level)
@@ -87,7 +87,7 @@ def start_autotrade():
                     # indicators_data[0][3]['RSI'] : 3일전
                     #--------------------------------------------------------------
                     if (Decimal(str(indicators_data[0][0]['RSI'])) > Decimal(str(indicators_data[0][1]['RSI']))
-                        and Decimal(str(indicators_data[0][1]['RSI'])) > Decimal(str(indicators_data[0][2]['RSI']))
+                        # and Decimal(str(indicators_data[0][1]['RSI'])) > Decimal(str(indicators_data[0][2]['RSI']))
                         # and Decimal(str(indicators_data[0][3]['RSI'])) > Decimal(str(indicators_data[0][2]['RSI']))
                         and Decimal(str(indicators_data[0][2]['RSI'])) < Decimal(str(30))):
                         rsi_val = True
@@ -113,10 +113,10 @@ def start_autotrade():
                     # indicators_data[2][3]['OCL'] : 3일전
                     #--------------------------------------------------------------
                     if (Decimal(str(indicators_data[2][0]['OCL'])) > Decimal(str(indicators_data[2][1]['OCL']))
-                        and Decimal(str(indicators_data[2][1]['OCL'])) > Decimal(str(indicators_data[2][2]['OCL']))
-                        and Decimal(str(indicators_data[2][3]['OCL'])) > Decimal(str(indicators_data[2][2]['OCL']))
-                        and Decimal(str(indicators_data[2][1]['OCL'])) < Decimal(str(0))
-                        and Decimal(str(indicators_data[2][2]['OCL'])) < Decimal(str(0))):
+                        # and Decimal(str(indicators_data[2][1]['OCL'])) > Decimal(str(indicators_data[2][2]['OCL']))
+                        # and Decimal(str(indicators_data[2][3]['OCL'])) > Decimal(str(indicators_data[2][2]['OCL']))
+                        and Decimal(str(indicators_data[2][1]['OCL'])) < Decimal(str(0))):
+                        # and Decimal(str(indicators_data[2][2]['OCL'])) < Decimal(str(0))):
                         # and Decimal(str(indicators_data[2][3]['OCL'])) < Decimal(str(0))):
                         ocl_val = True
 
@@ -355,7 +355,7 @@ def start_autotrade():
                                 logging.info('- 고점 대비 하락률 조건에 맞지 않아 매도하지 않음!!!')
                                 logging.info('------------------------------------------------------')
 
-                time.sleep(3)
+                # time.sleep(2)
 
     # ---------------------------------------
     # 모든 함수의 공통 부분(Exception 처리)
