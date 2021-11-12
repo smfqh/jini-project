@@ -182,7 +182,6 @@ def start_autotrade():
                 target_items_comma = upbit.chg_account_to_comma(target_items)
                 tickers = upbit.get_ticker(target_items_comma)
 
-   
     
                 # -----------------------------------------------------------------
                 # 보유 종목별 진행
