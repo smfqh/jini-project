@@ -5,8 +5,8 @@ import schedule
 from fbprophet import Prophet
 
 
-access = "your-access"
-secret = "your-secret"
+access = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 
 def get_target_price(ticker, k):
     """변동성 돌파 전략으로 매수 목표가 조회"""
@@ -53,8 +53,8 @@ def predict_price(ticker):
         closeDf = forecast[forecast['ds'] == data.iloc[-1]['ds'].replace(hour=9)]
     closeValue = closeDf['yhat'].values[0]
     predicted_close_price = closeValue
-predict_price("KRW-BTC")
-schedule.every().hour.do(lambda: predict_price("KRW-BTC"))
+predict_price("KRW-ADA")
+schedule.every().hour.do(lambda: predict_price("KRW-ADA"))
 
 # 로그인
 upbit = pyupbit.Upbit(access, secret)
@@ -64,21 +64,21 @@ print("autotrade start")
 while True:
     try:
         now = datetime.datetime.now()
-        start_time = get_start_time("KRW-BTC")
+        start_time = get_start_time("KRW-ADA")
         end_time = start_time + datetime.timedelta(days=1)
         schedule.run_pending()
 
         if start_time < now < end_time - datetime.timedelta(seconds=10):
-            target_price = get_target_price("KRW-BTC", 0.5)
-            current_price = get_current_price("KRW-BTC")
+            target_price = get_target_price("KRW-ADA", 0.5)
+            current_price = get_current_price("KRW-ADA")
             if target_price < current_price and current_price < predicted_close_price:
                 krw = get_balance("KRW")
                 if krw > 5000:
-                    upbit.buy_market_order("KRW-BTC", krw*0.9995)
+                    upbit.buy_market_order("KRW-ADA", krw*0.9995)
         else:
-            btc = get_balance("BTC")
-            if btc > 0.00008:
-                upbit.sell_market_order("KRW-BTC", btc)
+            ada = get_balance("ADA")
+            if ada > 0.00008:
+                upbit.sell_market_order("KRW-ADA", ada)
         time.sleep(1)
     except Exception as e:
         print(e)
