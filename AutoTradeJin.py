@@ -20,12 +20,12 @@ from module import upbit
 def start_autotrade():
     try:
 
-        log_level = "I"    #로그레벨(D:DEBUG, E:ERROR, 그 외:INFO)
+        log_level = "E"    #로그레벨(D:DEBUG, E:ERROR, 그 외:INFO)
         # 매수
         except_items = ""  # 매수제외종목
         buy_amt = 50000      # 매수금액
         # 매도 
-        sell_pcnt = 6      # 매도 수익률
+        sell_pcnt = 10      # 매도 수익률
         dcnt_pcnt =-1      # 고점대비 하락률
 
         upbit.set_loglevel(log_level)
