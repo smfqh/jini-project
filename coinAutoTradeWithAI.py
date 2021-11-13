@@ -6,8 +6,9 @@ from fbprophet import Prophet
 
 
 
-access = "비번"
-secret = "비번"
+access = "업비트에서 받은키"
+secret = "업비트에서 받은키"
+
 
 def get_target_price(ticker, k):
     """변동성 돌파 전략으로 매수 목표가 조회"""
