@@ -22,7 +22,7 @@ def start_autotrade():
         log_level = "I"     
         except_items = "ADA" 
         buy_amt = 50000      
-        sell_pcnt = 3
+        sell_pcnt = 2
         dcnt_pcnt =-1  
 
         upbit.set_loglevel(log_level)
@@ -61,14 +61,24 @@ def start_autotrade():
                         logging.info('have no data....[' + str(target_item['market']) + ']')
                         continue
    
-                    if (Decimal(str(indicators_data[0][0]['RSI'])) > Decimal(str(indicators_data[0][1]['RSI']))) :
-                        rsi_val = True
+                    if (Decimal(str(indicators_data[0][0]['RSI'])) > Decimal(str(indicators_data[0][1]['RSI']))
+                        and Decimal(str(indicators_data[0][1]['RSI'])) > Decimal(str(40))):
+                        rsi_val = True     
 
-                    if (Decimal(str(indicators_data[1][0]['MFI'])) > Decimal(str(indicators_data[1][1]['MFI']))):
+                    if (Decimal(str(indicators_data[1][0]['MFI'])) > Decimal(str(indicators_data[1][1]['MFI']))
+                        and Decimal(str(indicators_data[1][1]['MFI'])) > Decimal(str(indicators_data[1][2]['MFI']))
+                        and Decimal(str(indicators_data[1][0]['MFI'])) > Decimal(str(40))):
+
                         mfi_val = True
 
-                    if (Decimal(str(indicators_data[2][0]['OCL'])) > Decimal(str(indicators_data[2][1]['OCL']))):
+                    if (Decimal(str(indicators_data[2][0]['OCL'])) > Decimal(str(indicators_data[2][1]['OCL']))
+                        and Decimal(str(indicators_data[2][1]['OCL'])) > Decimal(str(indicators_data[2][2]['OCL']))
+                        and Decimal(str(indicators_data[2][3]['OCL'])) > Decimal(str(indicators_data[2][2]['OCL']))
+                        and Decimal(str(indicators_data[2][1]['OCL'])) < Decimal(str(0))
+                        and Decimal(str(indicators_data[2][2]['OCL'])) < Decimal(str(0))
+                        and Decimal(str(indicators_data[2][3]['OCL'])) < Decimal(str(0))):
                         ocl_val = True
+
 
 
                     #--------------------------------------------------------------
