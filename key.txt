@@ -20,5 +20,7 @@ server_url = 'https://api.upbit.com'
 
   nohup python3 AutoTradeJin.py > output.log &
 
+  nohup python3 coinAutoTradeWithAI.py > output.log &
+
 
    
