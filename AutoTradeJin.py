@@ -8,19 +8,17 @@ import numpy
  
 from decimal import Decimal
  
-# 공통 모듈 Import
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from module import upbit
  
  
 # -----------------------------------------------------------------------------
 # - Name : start_autotrade
-# - Desc : 자동 거래
 # -----------------------------------------------------------------------------
 def start_autotrade():
     try:
 
-        log_level = "E"    #로그레벨(D:DEBUG, E:ERROR, 그 외:INFO)
+        log_level = "E"    
         # 매수
         except_items = ""  # 매수제외종목
         buy_amt = 50000      # 매수금액
