@@ -21,7 +21,7 @@ server_url = 'https://api.upbit.com'
 
 min_order_amt = 5000
 
-buy_amt = 50000  
+buy_amt = 10000  
 
 buy_except_items = ""
 
@@ -58,7 +58,7 @@ def start_seconddream():
                         continue                
 
                     if (Decimal(str(indicators_data[0][0]['RSI'])) > Decimal(str(indicators_data[0][1]['RSI']))
-                        and Decimal(str(indicators_data[0][1]['RSI'])) > Decimal(str(45))):
+                        and Decimal(str(indicators_data[0][1]['RSI'])) > Decimal(str(40))):
                         rsi_val = True 
 
                     if (Decimal(str(indicators_data[1][0]['MFI'])) > Decimal(str(indicators_data[1][1]['MFI']))
@@ -94,7 +94,10 @@ def start_seconddream():
                                 for ticker in tickers:
                                     if my_item['market'] == ticker['market'] and target_item['market'] == my_item['market']:
                                         rev_pcnt = round(((Decimal(str(ticker['trade_price'])) - Decimal(str(my_item['avg_buy_price']))) / Decimal(str(my_item['avg_buy_price']))) * 100, 2)
-                                        if Decimal(rev_pcnt) < Decimal(-2):
+
+                                        logging.info('rev_pcnt! [' + str(rev_pcnt) + ']')
+
+                                        if Decimal(str(rev_pcnt)) < Decimal(str(-2)):
                                             logging.info('buy start! [' + str(target_item['market']) + ']')
                                             rtn_buycoin_mp = buycoin_mp(target_item['market'], buy_amt)
                                             logging.info('buy end! [' + str(target_item['market']) + ']')
@@ -807,6 +810,38 @@ def get_order_status(target_item, status):
     except Exception:
         raise
 
+def get_order(target_item):
+    try:
+        query = {
+            'market': target_item,
+            'state': 'wait',
+        }
+ 
+        query_string = urlencode(query).encode()
+ 
+        m = hashlib.sha512()
+        m.update(query_string)
+        query_hash = m.hexdigest()
+ 
+        payload = {
+            'access_key': access_key,
+            'nonce': str(uuid.uuid4()),
+            'query_hash': query_hash,
+            'query_hash_alg': 'SHA512',
+        }
+ 
+        jwt_token = jwt.encode(payload, secret_key)
+        authorize_token = 'Bearer {}'.format(jwt_token)
+        headers = {"Authorization": authorize_token}
+ 
+        res = send_request("GET", server_url + "/v1/orders", query, headers)
+        rtn_data = res.json()
+ 
+        return rtn_data
+
+    except Exception:
+        raise
+
 def sellcoin_mp(target_item, cancel_yn):
     try:
  
@@ -916,9 +951,30 @@ def cancel_order_uuid(order_uuid):
  
         return rtn_data
  
-    # ----------------------------------------
-    # 모든 함수의 공통 부분(Exception 처리)
-    # ----------------------------------------
+
+    except Exception:
+        raise
+
+def orderby_dict(target_dict, target_column, order_by):
+    try:
+ 
+        rtn_dict = sorted(target_dict, key=(lambda x: x[target_column]), reverse=order_by)
+ 
+        return rtn_dict
+ 
+    except Exception:
+        raise
+
+
+def filter_dict(target_dict, target_column, filter):
+    try:
+ 
+        for target_dict_for in target_dict[:]:
+            if target_dict_for[target_column] != filter:
+                target_dict.remove(target_dict_for)
+ 
+        return target_dict
+ 
     except Exception:
         raise
 
