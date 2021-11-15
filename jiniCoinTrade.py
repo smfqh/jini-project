@@ -58,13 +58,15 @@ def start_seconddream():
                         continue                
 
                     if (Decimal(str(indicators_data[0][0]['RSI'])) > Decimal(str(indicators_data[0][1]['RSI']))
-                        and Decimal(str(indicators_data[0][1]['RSI'])) > Decimal(str(40))):
-                        rsi_val = True 
+                        and Decimal(str(indicators_data[0][1]['RSI'])) > Decimal(str(indicators_data[0][2]['RSI']))
+                        and Decimal(str(indicators_data[0][3]['RSI'])) > Decimal(str(indicators_data[0][2]['RSI']))
+                        and Decimal(str(indicators_data[0][2]['RSI'])) < Decimal(str(30))):
+                        rsi_val = True
 
                     if (Decimal(str(indicators_data[1][0]['MFI'])) > Decimal(str(indicators_data[1][1]['MFI']))
                         and Decimal(str(indicators_data[1][1]['MFI'])) > Decimal(str(indicators_data[1][2]['MFI']))
-                        and Decimal(str(indicators_data[1][0]['MFI'])) > Decimal(str(40))):
-
+                        and Decimal(str(indicators_data[1][3]['MFI'])) > Decimal(str(indicators_data[1][2]['MFI']))
+                        and Decimal(str(indicators_data[1][2]['MFI'])) < Decimal(str(20))):
                         mfi_val = True
 
                     if (Decimal(str(indicators_data[2][0]['OCL'])) > Decimal(str(indicators_data[2][1]['OCL']))
