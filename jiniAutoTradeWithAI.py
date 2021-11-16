@@ -90,9 +90,6 @@ def start_second_dream():
                                 rtn_buycoin_mp = buycoin_mp(target_item['market'], buy_amt)
                                 logging.info('buy end! [' + str(target_item['market']) + ']')
                                 logging.info(rtn_buycoin_mp)
-
-            else :
-                os.system('cat /dev/null > output.log')
                 
 
     except Exception:
@@ -135,7 +132,10 @@ def get_predict_price(ticker):
     except Exception:
         raise
 
-# schedule.every().hour.do(lambda: predict_price("KRW-ADA"))
+def delete_log():
+    os.system('cat /dev/null > output.log')    
+
+schedule.every().hour.do(delete_log)
 
 def get_krwbal():
     try:
