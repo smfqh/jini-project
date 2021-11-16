@@ -15,8 +15,8 @@ import numpy
 import hashlib
 
 # Keys
-access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
-secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
+access_key = "업비트"
+secret_key = "업비트"
 server_url = 'https://api.upbit.com'
 
 min_order_amt = 5000
