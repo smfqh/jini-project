@@ -16,14 +16,14 @@ import hashlib
 from urllib.parse import urlencode
 
 # Keys
-access_key = "업비트"
-secret_key = "업비트"
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
 
 
 min_order_amt = 5000
 buy_amt = 50000  
-my_pcnt = 5
+my_pect = 5
 
 def start_second_dream():
     try: 
@@ -53,8 +53,6 @@ def start_second_dream():
                     logging.info('Checking....[' + str(target_item['market']) + ']')
             
                     if start_time < now < end_time - datetime.timedelta(seconds=10):
-                        print("buy logic")
-
                         current_price = get_current_price(target_item['market'])
                         print("current_price:" + str(current_price))
                         predict_price = get_predict_price(target_item['market'])
@@ -62,7 +60,7 @@ def start_second_dream():
 
                         rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
 
-                        if Decimal(str(rev_pcnt)) > Decimal(str(my_pcnt)):
+                        if Decimal(str(rev_pcnt)) > Decimal(str(my_pect)):
 
                             logging.info('find item....[' + str(target_item['market']) + ']')
                             if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
@@ -90,7 +88,8 @@ def start_second_dream():
                                 rtn_buycoin_mp = buycoin_mp(target_item['market'], buy_amt)
                                 logging.info('buy end! [' + str(target_item['market']) + ']')
                                 logging.info(rtn_buycoin_mp)
-                
+
+                    os.system('cat /dev/null > output.log') 
 
     except Exception:
         raise 
@@ -131,11 +130,6 @@ def get_predict_price(ticker):
 
     except Exception:
         raise
-
-def delete_log():
-    os.system('cat /dev/null > output.log')    
-
-schedule.every().hour.do(delete_log)
 
 def get_krwbal():
     try:
