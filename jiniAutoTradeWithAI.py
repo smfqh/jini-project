@@ -23,7 +23,7 @@ server_url = 'https://api.upbit.com'
 
 min_order_amt = 5000
 buy_amt = 50000  
-my_pect = 5
+my_pcnt = 5
 
 def start_second_dream():
     try: 
@@ -62,7 +62,7 @@ def start_second_dream():
 
                         rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
 
-                        if Decimal(str(rev_pcnt)) > Decimal(str(my_pect)):
+                        if Decimal(str(rev_pcnt)) > Decimal(str(my_pcnt)):
 
                             logging.info('find item....[' + str(target_item['market']) + ']')
                             if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
