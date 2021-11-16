@@ -23,7 +23,7 @@ min_order_amt = 5000
 
 sell_pcnt = 4
 
-sell_except_item = ["OMG", "XEC"]  
+sell_except_item = []  
 
 
 def start_seconddream():
@@ -727,6 +727,59 @@ def set_loglevel(level):
     except Exception:
         raise
 
+
+
+def get_balance(target_item):
+    try:
+ 
+        # 주문가능 잔고 리턴용
+        rtn_balance = 0
+ 
+        # 최대 재시도 횟수
+        max_cnt = 0
+ 
+        # 잔고가 조회 될 때까지 반복
+        while True:
+ 
+            # 조회 회수 증가
+            max_cnt = max_cnt + 1
+ 
+            payload = {
+                'access_key': access_key,
+                'nonce': str(uuid.uuid4()),
+            }
+ 
+            jwt_token = jwt.encode(payload, secret_key)
+            authorize_token = 'Bearer {}'.format(jwt_token)
+            headers = {"Authorization": authorize_token}
+ 
+            res = send_request("GET", server_url + "/v1/accounts", "", headers)
+            my_asset = res.json()
+ 
+            # 해당 종목에 대한 잔고 조회
+            # 잔고는 마켓에 상관없이 전체 잔고가 조회됨
+            for myasset_for in my_asset:
+                if myasset_for['currency'] == target_item.split('-')[1]:
+                    rtn_balance = myasset_for['balance']
+ 
+            # 잔고가 0 이상일때까지 반복
+            if Decimal(str(rtn_balance)) > Decimal(str(0)):
+                break
+ 
+            # 최대 100회 수행
+            if max_cnt > 100:
+                break
+ 
+            logging.info("[주문가능 잔고 리턴용] 요청 재처리중...")
+ 
+        return rtn_balance
+ 
+    # ----------------------------------------
+    # Exception Raise
+    # ----------------------------------------
+    except Exception:
+        raise
+ 
 
 if __name__ == '__main__':
  
