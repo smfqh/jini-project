@@ -29,7 +29,7 @@ sell_except_item = ["OMG", "XEC"]
 def start_seconddream():
     try:
 
-        set_loglevel("I")    
+        set_loglevel("E")    
 
         while True:
 
