@@ -15,8 +15,8 @@ import numpy
 import hashlib
 
 # Keys
-access_key = "업비트"
-secret_key = "업비트"
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
 
 min_order_amt = 5000
@@ -29,7 +29,7 @@ sell_except_item = ["OMG", "XEC"]
 def start_seconddream():
     try:
 
-        set_loglevel("E")    
+        set_loglevel("I")    
 
         while True:
 
@@ -59,35 +59,12 @@ def start_seconddream():
                                 logging.info('- under rev_pcnt!!!')
                                 logging.info('------------------------------------------------------')
                                 continue
-    
-                            order_done = get_order_status(my_item['market'], 'done') + get_order_status(my_item['market'], 'cancel')
-                            order_done_sorted = orderby_dict(order_done, 'created_at', True)
-                            order_done_filtered = filter_dict(order_done_sorted, 'side', 'bid')
-    
-                            candles = get_candle(my_item['market'], 'D', 200)
-
-                            df = pd.DataFrame(candles)
-                            mask = df['candle_date_time_kst'] > order_done_filtered[0]['created_at']
-                            filtered_df = df.loc[mask]
-    
-                            higest_high_price = numpy.max(filtered_df['high_price'])
-
-                            cur_dcnt_pcnt = round(((Decimal(str(ticker['trade_price'])) - Decimal(str(higest_high_price))) / Decimal(str(higest_high_price))) * 100, 2)
-    
-                            logging.info('- higest_high_price:' + str(higest_high_price))
-                            logging.info('- cur_dcnt_pcnt:' + str(cur_dcnt_pcnt))
-                            
-                            if Decimal(str(cur_dcnt_pcnt)) < Decimal(str(-1)):
-                                    
+                            else :
                                 logging.info('sell start! [' + str(my_item['market']) + ']')
                                 rtn_sellcoin_mp = sellcoin_mp(my_item['market'], 'Y')
                                 logging.info('sell end ! [' + str(my_item['market']) + ']')
                                 logging.info(rtn_sellcoin_mp)
                                 logging.info('------------------------------------------------------')
-    
-                            else:
-                                logging.info('- under cur_dcnt_pcnt  !!!')
-                                logging.info('------------------------------------------------------')   
 
 
     except Exception:
