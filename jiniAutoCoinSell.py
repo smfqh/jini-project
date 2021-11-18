@@ -21,7 +21,7 @@ server_url = 'https://api.upbit.com'
 
 min_order_amt = 5000
 
-sell_pcnt = 4
+sell_pcnt = 5
 
 sell_except_item = []  
 
