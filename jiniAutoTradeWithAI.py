@@ -22,7 +22,7 @@ server_url = 'https://api.upbit.com'
 
 
 min_order_amt = 5000
-buy_amt = 50000  
+buy_amt = 55000  
 my_pect = 10
 
 def start_second_dream():
@@ -32,10 +32,7 @@ def start_second_dream():
 
         while True:
 
-            # 1. available amt
-            available_amt = get_krwbal()['available_krw']
-
-            # 2. my coin list
+            # 1. my coin list
             my_items = get_accounts('Y','KRW')
             my_items_comma = chg_account_to_comma(my_items)
             tickers = get_ticker(my_items_comma)
@@ -55,16 +52,18 @@ def start_second_dream():
                                 logging.info('sell start! [' + str(my_item['market']) + ']')
                                 rtn_sellcoin_mp = sellcoin_mp(my_item['market'], 'Y')
                                 logging.info('sell end ! [' + str(my_item['market']) + ']')
-                                logging.info(rtn_sellcoin_mp)
-                                logging.info('------------------------------------------------------')     
+                                logging.info(rtn_sellcoin_mp)    
 
-            if available_amt > buy_amt : 
-                target_items = get_items('KRW', except_items)
+            if start_time + datetime.timedelta(seconds=3000) < now < end_time - datetime.timedelta(seconds=3600):
 
-                for target_item in target_items:
-                    logging.info('Checking....[' + str(target_item['market']) + ']')
-            
-                    if start_time + datetime.timedelta(seconds=600) < now < end_time - datetime.timedelta(seconds=3600):
+                # 1. available amt
+                available_amt = get_krwbal()['available_krw']
+
+                if available_amt > buy_amt : 
+                    target_items = get_items('KRW', except_items)
+
+                    for target_item in target_items:
+                        logging.info('Checking....[' + str(target_item['market']) + ']')
                         current_price = get_current_price(target_item['market'])
                         predict_price = get_predict_price(target_item['market'])
 
