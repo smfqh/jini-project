@@ -32,17 +32,16 @@ def start_second_dream():
 
         while True:
 
-            # 1. my coin list
-            my_items = get_accounts('Y','KRW')
-            my_items_comma = chg_account_to_comma(my_items)
-            tickers = get_ticker(my_items_comma)
-
-
             now = datetime.datetime.now()            
             start_time = get_start_time("KRW-BTC")
             end_time = start_time + datetime.timedelta(days=1) 
 
             if start_time + datetime.timedelta(seconds=600) < now :
+                # 1. my coin list
+                my_items = get_accounts('Y','KRW')
+                my_items_comma = chg_account_to_comma(my_items)
+                tickers = get_ticker(my_items_comma) 
+
                 for my_item in my_items:
                     for ticker in tickers:
                         if my_item['market'] == ticker['market']:
@@ -56,7 +55,12 @@ def start_second_dream():
 
             if start_time + datetime.timedelta(seconds=3000) < now < end_time - datetime.timedelta(seconds=3600):
 
-                # 1. available amt
+                # 1. my coin list
+                my_items = get_accounts('Y','KRW')
+                my_items_comma = chg_account_to_comma(my_items)
+                tickers = get_ticker(my_items_comma) 
+
+                # 2. available amt
                 available_amt = get_krwbal()['available_krw']
 
                 if available_amt > buy_amt : 
