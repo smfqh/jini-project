@@ -16,7 +16,8 @@ import hashlib
 from urllib.parse import urlencode
 
 # Keys
-
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
 
 
@@ -44,6 +45,18 @@ def start_second_dream():
             start_time = get_start_time("KRW-BTC")
             end_time = start_time + datetime.timedelta(days=1) 
 
+            if start_time + datetime.timedelta(seconds=600) < now :
+                for my_item in my_items:
+                    for ticker in tickers:
+                        if my_item['market'] == ticker['market']:
+                            predict_price = get_predict_price(my_item['market'])
+                            # print(my_item['market'] + " :" + str(my_item['avg_buy_price']) + " :" + str(predict_price))
+                            if Decimal(str(my_item['avg_buy_price'])) > Decimal(str(predict_price)) :
+                                logging.info('sell start! [' + str(my_item['market']) + ']')
+                                rtn_sellcoin_mp = sellcoin_mp(my_item['market'], 'Y')
+                                logging.info('sell end ! [' + str(my_item['market']) + ']')
+                                logging.info(rtn_sellcoin_mp)
+                                logging.info('------------------------------------------------------')     
 
             if available_amt > buy_amt : 
                 target_items = get_items('KRW', except_items)
@@ -51,11 +64,9 @@ def start_second_dream():
                 for target_item in target_items:
                     logging.info('Checking....[' + str(target_item['market']) + ']')
             
-                    if start_time < now < end_time - datetime.timedelta(seconds=10):
+                    if start_time + datetime.timedelta(seconds=600) < now < end_time - datetime.timedelta(seconds=3600):
                         current_price = get_current_price(target_item['market'])
-                        print("current_price:" + str(current_price))
                         predict_price = get_predict_price(target_item['market'])
-                        print("predict_price:" + str(predict_price))                
 
                         rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
 
@@ -88,7 +99,7 @@ def start_second_dream():
                                 logging.info('buy end! [' + str(target_item['market']) + ']')
                                 logging.info(rtn_buycoin_mp)
 
-                    os.system('cat /dev/null > output.log') 
+                    # os.system('cat /dev/null > output.log') 
 
     except Exception:
         raise 
@@ -280,6 +291,84 @@ def buycoin_mp(target_item, buy_amount):
     except Exception:
         raise
 
+def sellcoin_mp(target_item, cancel_yn):
+    try:
+ 
+        if cancel_yn == 'Y':
+            cancel_order(target_item, "SELL")
+ 
+        cur_balance = get_balance(target_item)
+ 
+        query = {
+            'market': target_item,
+            'side': 'ask',
+            'volume': cur_balance,
+            'ord_type': 'market',
+        }
+ 
+        query_string = urlencode(query).encode()
+ 
+        m = hashlib.sha512()
+        m.update(query_string)
+        query_hash = m.hexdigest()
+ 
+        payload = {
+            'access_key': access_key,
+            'nonce': str(uuid.uuid4()),
+            'query_hash': query_hash,
+            'query_hash_alg': 'SHA512',
+        }
+ 
+        jwt_token = jwt.encode(payload, secret_key)
+        authorize_token = 'Bearer {}'.format(jwt_token)
+        headers = {"Authorization": authorize_token}
+ 
+        res = send_request("POST", server_url + "/v1/orders", query, headers)
+        rtn_data = res.json()
+ 
+        logging.info("")
+        logging.info("----------------------------------------------")
+        logging.info("시장가 매도 완료!")
+        logging.info(rtn_data)
+        logging.info("----------------------------------------------")
+ 
+        return rtn_data
+ 
+    except Exception:
+        raise
+
+def get_order(target_item):
+    try:
+        query = {
+            'market': target_item,
+            'state': 'wait',
+        }
+ 
+        query_string = urlencode(query).encode()
+ 
+        m = hashlib.sha512()
+        m.update(query_string)
+        query_hash = m.hexdigest()
+ 
+        payload = {
+            'access_key': access_key,
+            'nonce': str(uuid.uuid4()),
+            'query_hash': query_hash,
+            'query_hash_alg': 'SHA512',
+        }
+ 
+        jwt_token = jwt.encode(payload, secret_key)
+        authorize_token = 'Bearer {}'.format(jwt_token)
+        headers = {"Authorization": authorize_token}
+ 
+        res = send_request("GET", server_url + "/v1/orders", query, headers)
+        rtn_data = res.json()
+ 
+        return rtn_data
+
+    except Exception:
+        raise
+
 def get_ticker(target_itemlist):
     try:
  
@@ -302,6 +391,113 @@ def chg_account_to_comma(account_data):
             else:
                 rtn_data = rtn_data + ',' + account_data_for['market']
         return rtn_data
+    except Exception:
+        raise
+
+
+def cancel_order(target_item, side):
+    try:
+ 
+        order_data = get_order(target_item)
+ 
+        for order_data_for in order_data:
+ 
+            if side == "BUY" or side == "buy":
+                if order_data_for['side'] == "ask":
+                    order_data.remove(order_data_for)
+            elif side == "SELL" or side == "sell":
+                if order_data_for['side'] == "bid":
+                    order_data.remove(order_data_for)
+ 
+        if len(order_data) > 0:
+ 
+            for order_data_for in order_data:
+                cancel_order_uuid(order_data_for['uuid'])
+ 
+    except Exception:
+        raise
+
+def cancel_order_uuid(order_uuid):
+    try:
+ 
+        query = {
+            'uuid': order_uuid,
+        }
+ 
+        query_string = urlencode(query).encode()
+ 
+        m = hashlib.sha512()
+        m.update(query_string)
+        query_hash = m.hexdigest()
+ 
+        payload = {
+            'access_key': access_key,
+            'nonce': str(uuid.uuid4()),
+            'query_hash': query_hash,
+            'query_hash_alg': 'SHA512',
+        }
+ 
+        jwt_token = jwt.encode(payload, secret_key)
+        authorize_token = 'Bearer {}'.format(jwt_token)
+        headers = {"Authorization": authorize_token}
+ 
+        res = send_request("DELETE", server_url + "/v1/order", query, headers)
+        rtn_data = res.json()
+ 
+        return rtn_data
+ 
+
+    except Exception:
+        raise
+
+def get_balance(target_item):
+    try:
+ 
+        # 주문가능 잔고 리턴용
+        rtn_balance = 0
+ 
+        # 최대 재시도 횟수
+        max_cnt = 0
+ 
+        # 잔고가 조회 될 때까지 반복
+        while True:
+ 
+            # 조회 회수 증가
+            max_cnt = max_cnt + 1
+ 
+            payload = {
+                'access_key': access_key,
+                'nonce': str(uuid.uuid4()),
+            }
+ 
+            jwt_token = jwt.encode(payload, secret_key)
+            authorize_token = 'Bearer {}'.format(jwt_token)
+            headers = {"Authorization": authorize_token}
+ 
+            res = send_request("GET", server_url + "/v1/accounts", "", headers)
+            my_asset = res.json()
+ 
+            # 해당 종목에 대한 잔고 조회
+            # 잔고는 마켓에 상관없이 전체 잔고가 조회됨
+            for myasset_for in my_asset:
+                if myasset_for['currency'] == target_item.split('-')[1]:
+                    rtn_balance = myasset_for['balance']
+ 
+            # 잔고가 0 이상일때까지 반복
+            if Decimal(str(rtn_balance)) > Decimal(str(0)):
+                break
+ 
+            # 최대 100회 수행
+            if max_cnt > 100:
+                break
+ 
+            logging.info("[주문가능 잔고 리턴용] 요청 재처리중...")
+ 
+        return rtn_balance
+ 
+    # ----------------------------------------
+    # Exception Raise
+    # ----------------------------------------
     except Exception:
         raise
 
