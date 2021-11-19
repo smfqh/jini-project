@@ -99,7 +99,7 @@ def start_second_dream():
                                 logging.info('buy end! [' + str(target_item['market']) + ']')
                                 logging.info(rtn_buycoin_mp)
 
-                    # os.system('cat /dev/null > output.log') 
+                    os.system('cat /dev/null > output.log') 
 
     except Exception:
         raise 
