@@ -15,8 +15,8 @@ from urllib.parse import urlencode
 
 
 # Keys
-access_key = ""
-secret_key = ""
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
 
 
@@ -63,6 +63,13 @@ def start_second_dream():
                                     re_buy_pcnt = round(((Decimal(str(current_price)) - Decimal(str(my_item['avg_buy_price']))) / Decimal(str(my_item['avg_buy_price']))) * 100, 2)
 
                                     if Decimal(str(rev_pcnt)) > Decimal(str(my_pect)) and Decimal(str(re_buy_pcnt)) < Decimal(str(rebuy_pcnt)):
+
+                                        if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
+                                            continue
+
+                                        if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
+                                            continue
+
                                         buycoin_mp(target_item['market'], buy_amt)
             
                     else:
