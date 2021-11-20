@@ -28,7 +28,7 @@ rebuy_pcnt = -5
 
 def start_second_dream():
     try: 
-        set_loglevel("I")
+        set_loglevel("E")
         
         except_items = ""
         
