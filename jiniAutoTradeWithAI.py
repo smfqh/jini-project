@@ -1,6 +1,7 @@
 import os
 import time
 import sys
+# from pandas._libs.tslibs import Minute
 import pyupbit
 import datetime
 import schedule
@@ -32,11 +33,24 @@ def start_second_dream():
 
         while True:
 
-            now = datetime.datetime.now()            
+            now = datetime.datetime.now()
             start_time = get_start_time("KRW-BTC")
             end_time = start_time + datetime.timedelta(days=1) 
+            check_time = start_time
+            loss_cut_time = check_time+datetime.timedelta(minutes=5)
+            relese_time = end_time - datetime.timedelta(hours=1)
+            real_start_time = check_time + datetime.timedelta(minutes=30)
+ 
+            # print(now)
+            # print(start_time)
+            # print(end_time)
+            # print(loss_cut_time)
+            # print(relese_time)
+            # print(real_start_time)
 
-            if start_time + datetime.timedelta(seconds=600) < now :
+            
+            if loss_cut_time > now :
+
                 # 1. my coin list
                 my_items = get_accounts('Y','KRW')
                 my_items_comma = chg_account_to_comma(my_items)
@@ -53,7 +67,7 @@ def start_second_dream():
                                 logging.info('sell end ! [' + str(my_item['market']) + ']')
                                 logging.info(rtn_sellcoin_mp)    
 
-            if start_time + datetime.timedelta(seconds=3000) < now < end_time - datetime.timedelta(seconds=3600):
+            if real_start_time < now < relese_time:
 
                 # 1. my coin list
                 my_items = get_accounts('Y','KRW')
