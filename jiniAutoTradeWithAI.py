@@ -1,10 +1,8 @@
 import os
 import time
 import sys
-# from pandas._libs.tslibs import Minute
 import pyupbit
 import datetime
-import schedule
 import logging
 import traceback
 from decimal import Decimal
@@ -16,71 +14,65 @@ from fbprophet import Prophet
 import hashlib
 from urllib.parse import urlencode
 
-# Keys
 
+# Keys
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
 
 
 min_order_amt = 5000
-buy_amt = 55000  
+buy_amt = 100000  
 my_pect = 10
+rebuy_pcnt = -5
 
 def start_second_dream():
     try: 
+        set_loglevel("I")
         
         except_items = ""
-
+        
         while True:
 
-            now = datetime.datetime.now()
-            start_time = get_start_time("KRW-BTC")
-            end_time = start_time + datetime.timedelta(days=1) 
-            check_time = start_time
-            loss_cut_time = check_time+datetime.timedelta(minutes=5)
-            relese_time = end_time - datetime.timedelta(hours=1)
-            real_start_time = check_time + datetime.timedelta(minutes=30)
- 
-            # print(now)
-            # print(start_time)
-            # print(end_time)
-            # print(loss_cut_time)
-            # print(relese_time)
-            # print(real_start_time)
+            # 1. available amt
+            available_amt = get_krwbal()['available_krw']
 
+            # 2. my coin list
+            my_items = get_accounts('Y','KRW')
+            my_items_comma = chg_account_to_comma(my_items)
+
+            target_items = get_items('KRW', except_items)
+
+            for target_item in target_items:
+
+                if str(target_item['market']) in my_items_comma :
+
+                    for my_item in my_items:
+
+                        if target_item['market'] == my_item['market']:
+                            
+                            predict_price = get_predict_price(target_item['market'])
+                                                
+                            if Decimal(str(my_item['avg_buy_price'])) >=  Decimal(str(predict_price)) :
+                                
+                                sellcoin_mp(my_item['market'], 'Y')    
+
+                            else:
+
+                                if available_amt > buy_amt : 
+
+                                    current_price = get_current_price(target_item['market'])                            
+                                    rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
+                                    re_buy_pcnt = round(((Decimal(str(current_price)) - Decimal(str(my_item['avg_buy_price']))) / Decimal(str(my_item['avg_buy_price']))) * 100, 2)
+
+                                    if Decimal(str(rev_pcnt)) > Decimal(str(my_pect)) and Decimal(str(re_buy_pcnt)) < Decimal(str(rebuy_pcnt)):
+                                        
+                                        buycoin_mp(target_item['market'], buy_amt)
             
-            if loss_cut_time > now :
+                else:
 
-                # 1. my coin list
-                my_items = get_accounts('Y','KRW')
-                my_items_comma = chg_account_to_comma(my_items)
-                tickers = get_ticker(my_items_comma) 
-
-                for my_item in my_items:
-                    for ticker in tickers:
-                        if my_item['market'] == ticker['market']:
-                            predict_price = get_predict_price(my_item['market'])
-                            # print(my_item['market'] + " :" + str(my_item['avg_buy_price']) + " :" + str(predict_price))
-                            if Decimal(str(my_item['avg_buy_price'])) > Decimal(str(predict_price)) :
-                                logging.info('sell start! [' + str(my_item['market']) + ']')
-                                rtn_sellcoin_mp = sellcoin_mp(my_item['market'], 'Y')
-                                logging.info('sell end ! [' + str(my_item['market']) + ']')
-                                logging.info(rtn_sellcoin_mp)    
-
-            if real_start_time < now < relese_time:
-
-                # 1. my coin list
-                my_items = get_accounts('Y','KRW')
-                my_items_comma = chg_account_to_comma(my_items)
-                tickers = get_ticker(my_items_comma) 
-
-                # 2. available amt
-                available_amt = get_krwbal()['available_krw']
-
-                if available_amt > buy_amt : 
-                    target_items = get_items('KRW', except_items)
-
-                    for target_item in target_items:
-                        logging.info('Checking....[' + str(target_item['market']) + ']')
+                    if available_amt > buy_amt : 
+                    
                         current_price = get_current_price(target_item['market'])
                         predict_price = get_predict_price(target_item['market'])
 
@@ -88,34 +80,14 @@ def start_second_dream():
 
                         if Decimal(str(rev_pcnt)) > Decimal(str(my_pect)):
 
-                            logging.info('find item....[' + str(target_item['market']) + ']')
                             if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
                                 continue
 
                             if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
                                 continue
 
-                            if str(target_item['market']) in my_items_comma :
-                                for my_item in my_items:
-                                    for ticker in tickers:
-                                        if my_item['market'] == ticker['market'] and target_item['market'] == my_item['market']:
-                                            rev_pcnt = round(((Decimal(str(ticker['trade_price'])) - Decimal(str(my_item['avg_buy_price']))) / Decimal(str(my_item['avg_buy_price']))) * 100, 2)
+                            buycoin_mp(target_item['market'], buy_amt)
 
-                                            logging.info('rev_pcnt! [' + str(rev_pcnt) + ']')
-
-                                            if Decimal(str(rev_pcnt)) < Decimal(str(-2)):
-                                                logging.info('buy start! [' + str(target_item['market']) + ']')
-                                                rtn_buycoin_mp = buycoin_mp(target_item['market'], buy_amt)
-                                                logging.info('buy end! [' + str(target_item['market']) + ']')
-                                                logging.info(rtn_buycoin_mp)
-                                            
-                            else :
-                                logging.info('buy start! [' + str(target_item['market']) + ']')
-                                rtn_buycoin_mp = buycoin_mp(target_item['market'], buy_amt)
-                                logging.info('buy end! [' + str(target_item['market']) + ']')
-                                logging.info(rtn_buycoin_mp)
-
-                    os.system('cat /dev/null > output.log') 
 
     except Exception:
         raise 
@@ -518,6 +490,8 @@ def get_balance(target_item):
         raise
 
 
+
+
 # Logging Level Setting
 def set_loglevel(level):
     try:
@@ -590,7 +564,7 @@ if __name__ == '__main__':
     try:
  
         # 1. loglevel setting
-        set_loglevel("E")
+
          # 매수 로직 시작
         start_second_dream()
         
