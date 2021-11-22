@@ -14,8 +14,8 @@ from urllib.parse import urlencode
 
 
 # Keys
-access_key = ""
-secret_key = ""
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
 
 
@@ -44,20 +44,16 @@ def start_second_dream():
                         for my_item in my_items:
                             if target_item['market'] == my_item['market']:
                                 predict_price = get_predict_price(target_item['market'])
+                                current_price = get_current_price(target_item['market'])                            
+                                rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
+                                re_buy_pcnt = round(((Decimal(str(current_price)) - Decimal(str(my_item['avg_buy_price']))) / Decimal(str(my_item['avg_buy_price']))) * 100, 2)
 
-                                if Decimal(str(my_item['avg_buy_price'])) >=  Decimal(str(predict_price)) :
-                                    sellcoin_mp(my_item['market'], 'Y')    
-                                else:
-                                    current_price = get_current_price(target_item['market'])                            
-                                    rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
-                                    re_buy_pcnt = round(((Decimal(str(current_price)) - Decimal(str(my_item['avg_buy_price']))) / Decimal(str(my_item['avg_buy_price']))) * 100, 2)
-
-                                    if Decimal(str(rev_pcnt)) > Decimal(str(my_pect)) and Decimal(str(re_buy_pcnt)) < Decimal(str(rebuy_pcnt)):
-                                        if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
-                                            continue
-                                        if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
-                                            continue
-                                        buycoin_mp(target_item['market'], buy_amt)
+                                if Decimal(str(rev_pcnt)) > Decimal(str(my_pect)) and Decimal(str(re_buy_pcnt)) < Decimal(str(rebuy_pcnt)):
+                                    if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
+                                        continue
+                                    if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
+                                        continue
+                                    buycoin_mp(target_item['market'], buy_amt)
             
                     else:
                         current_price = get_current_price(target_item['market'])
@@ -70,15 +66,15 @@ def start_second_dream():
                             if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
                                 continue
                             buycoin_mp(target_item['market'], buy_amt)
-            else :
-                for target_item in target_items:
-                    if str(target_item['market']) in my_items_comma :
-                        for my_item in my_items:
-                            if target_item['market'] == my_item['market']:
-                                predict_price = get_predict_price(target_item['market'])
+            # else :
+            #     for target_item in target_items:
+            #         if str(target_item['market']) in my_items_comma :
+            #             for my_item in my_items:
+            #                 if target_item['market'] == my_item['market']:
+            #                     predict_price = get_predict_price(target_item['market'])
 
-                                if Decimal(str(my_item['avg_buy_price'])) >=  Decimal(str(predict_price)) :
-                                    sellcoin_mp(my_item['market'], 'Y')    
+            #                     if Decimal(str(my_item['avg_buy_price'])) >=  Decimal(str(predict_price)) :
+            #                         sellcoin_mp(my_item['market'], 'Y')    
 
     except Exception:
         raise 
