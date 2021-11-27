@@ -20,9 +20,10 @@ server_url = 'https://api.upbit.com'
 
 
 min_order_amt = 5000
-buy_amt = 50000  
+buy_amt = 100000  
 my_pect = 15
-rebuy_pcnt = -7
+rebuy_pcnt = -10
+loss_cut_pcnt = 1.07
 
 def start_second_dream():
     try: 
@@ -48,11 +49,18 @@ def start_second_dream():
                                 rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
                                 re_buy_pcnt = round(((Decimal(str(current_price)) - Decimal(str(my_item['avg_buy_price']))) / Decimal(str(my_item['avg_buy_price']))) * 100, 2)
 
-                                if Decimal(str(rev_pcnt)) > Decimal(str(my_pect)) and Decimal(str(re_buy_pcnt)) < Decimal(str(rebuy_pcnt)):
+                                if Decimal(str(float(my_item['avg_buy_price'])*loss_cut_pcnt)) >=  Decimal(str(predict_price)) :
+
+                                    sellcoin_mp(my_item['market'], 'Y')    
+
+                                elif Decimal(str(rev_pcnt)) > Decimal(str(my_pect)) and Decimal(str(re_buy_pcnt)) < Decimal(str(rebuy_pcnt)):
+
                                     if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
                                         continue
+
                                     if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
                                         continue
+
                                     buycoin_mp(target_item['market'], buy_amt)
             
                     else:
@@ -73,7 +81,7 @@ def start_second_dream():
                             if target_item['market'] == my_item['market']:
                                 predict_price = get_predict_price(target_item['market'])
 
-                                if Decimal(str(my_item['avg_buy_price'])) >  Decimal(str(predict_price)) :
+                                if Decimal(str(float(my_item['avg_buy_price'])*loss_cut_pcnt)) >=  Decimal(str(predict_price)) :
                                     sellcoin_mp(my_item['market'], 'Y')    
 
     except Exception:
