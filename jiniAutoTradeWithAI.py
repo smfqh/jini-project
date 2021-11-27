@@ -21,7 +21,7 @@ server_url = 'https://api.upbit.com'
 
 min_order_amt = 5000
 buy_amt = 50000  
-my_pect = 10
+my_pect = 15
 rebuy_pcnt = -7
 
 def start_second_dream():
@@ -66,15 +66,15 @@ def start_second_dream():
                             if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
                                 continue
                             buycoin_mp(target_item['market'], buy_amt)
-            # else :
-            #     for target_item in target_items:
-            #         if str(target_item['market']) in my_items_comma :
-            #             for my_item in my_items:
-            #                 if target_item['market'] == my_item['market']:
-            #                     predict_price = get_predict_price(target_item['market'])
+            else :
+                for target_item in target_items:
+                    if str(target_item['market']) in my_items_comma :
+                        for my_item in my_items:
+                            if target_item['market'] == my_item['market']:
+                                predict_price = get_predict_price(target_item['market'])
 
-            #                     if Decimal(str(my_item['avg_buy_price'])) >=  Decimal(str(predict_price)) :
-            #                         sellcoin_mp(my_item['market'], 'Y')    
+                                if Decimal(str(my_item['avg_buy_price'])) >  Decimal(str(predict_price)) :
+                                    sellcoin_mp(my_item['market'], 'Y')    
 
     except Exception:
         raise 
