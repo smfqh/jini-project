@@ -22,7 +22,7 @@ server_url = 'https://api.upbit.com'
 min_order_amt = 5000
 buy_amt = 100000  
 my_pect = 15
-rebuy_pcnt = -10
+rebuy_pcnt = -15
 loss_cut_pcnt = 1.07
 
 def start_second_dream():
