@@ -14,8 +14,8 @@ import numpy
 import hashlib
 
 # Keys
-access_key = ""
-secret_key = ""
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
 
 
@@ -23,7 +23,7 @@ min_order_amt = 5000
 
 sell_pcnt = 5
 
-dcnt_pcnt = -2
+dcnt_pcnt = -3
 
 # sell_except_item = ["LOOM"]  
 sell_except_item = []  
@@ -33,7 +33,7 @@ def start_seconddream():
 
     try:
 
-        set_loglevel("I")    
+        set_loglevel("E")    
  
         # ----------------------------------------------------------------------
         # 반복 수행
@@ -78,39 +78,15 @@ def start_seconddream():
                             logging.info('- 현재 수익률이 매도 수익률 보다 낮아 진행하지 않음!!!')
                             logging.info('------------------------------------------------------')
                             continue
- 
-                        # -------------------------------------------------
-                        # 고점을 계산하기 위해 최근 매수일자 조회
-                        # 1. 해당 종목에 대한 거래 조회(done, cancel)
-                        # 2. 거래일시를 최근순으로 정렬
-                        # 3. 매수 거래만 필터링
-                        # 4. 가장 최근 거래일자부터 현재까지 고점을 조회
-                        # -------------------------------------------------
-                        order_done = get_order_status(target_item['market'], 'done') + get_order_status(target_item['market'], 'cancel')
-                        order_done_sorted = orderby_dict(order_done, 'created_at', True)
-                        order_done_filtered = filter_dict(order_done_sorted, 'side', 'bid')
- 
-                        # ------------------------------------------------------------------
-                        # 캔들 조회
-                        # ------------------------------------------------------------------
-                        candles = get_candle(target_item['market'], 'D', 200)
- 
-                        # ------------------------------------------------------------------
-                        # 최근 매수일자 다음날부터 현재까지의 최고가를 계산
-                        # ------------------------------------------------------------------
-                        df = pd.DataFrame(candles)
-                        mask = df['candle_date_time_kst'] > order_done_filtered[0]['created_at']
-                        filtered_df = df.loc[mask]
- 
-                        higest_high_price = numpy.max(filtered_df['high_price'])
- 
+
+
                         # -----------------------------------------------------
                         # 고점대비 하락률
                         # ((현재가 - 최고가) / 최고가) * 100
                         # -----------------------------------------------------
-                        cur_dcnt_pcnt = round(((Decimal(str(ticker['trade_price'])) - Decimal(str(higest_high_price))) / Decimal(str(higest_high_price))) * 100, 2)
- 
-                        logging.info('- 매수 후 최고가:' + str(higest_high_price))
+                        cur_dcnt_pcnt = round(((Decimal(str(ticker['trade_price'])) - Decimal(str(ticker['high_price']))) / Decimal(str(ticker['high_price']))) * 100, 2)
+
+                        logging.info('- 금일 최고가:' + str(ticker['high_price']))
                         logging.info('- 고점대비 하락률:' + str(cur_dcnt_pcnt))
                         
                         if Decimal(str(cur_dcnt_pcnt)) < Decimal(str(dcnt_pcnt)):
@@ -125,7 +101,7 @@ def start_seconddream():
                             logging.info('시장가 매도 종료! [' + str(target_item['market']) + ']')
                             logging.info(rtn_sellcoin_mp)
                             logging.info('------------------------------------------------------')
- 
+
                         else:
                             logging.info('- 고점 대비 하락률 조건에 맞지 않아 매도하지 않음!!!')
                             logging.info('------------------------------------------------------')
