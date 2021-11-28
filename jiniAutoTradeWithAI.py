@@ -14,15 +14,15 @@ from urllib.parse import urlencode
 
 
 # Keys
-access_key = ""
-secret_key = ""
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
 
 
 min_order_amt = 5000
-buy_amt = 100000  
+buy_amt = 'M'  
 my_pect = 15
-rebuy_pcnt = -15
+rebuy_pcnt = -10
 loss_cut_pcnt = 1.07
 
 def start_second_dream():
@@ -30,6 +30,7 @@ def start_second_dream():
         set_loglevel("E")
         
         # except_items = "MANA,SAND"
+        global buy_amt
         except_items = ""
 
         while True:
@@ -39,7 +40,10 @@ def start_second_dream():
             my_items_comma = chg_account_to_comma(my_items)
             target_items = get_items('KRW', except_items)
 
-            if available_amt > buy_amt : 
+            if buy_amt == 'M':
+                buy_amt = available_amt
+
+            if buy_amt  >  min_order_amt : 
                 for target_item in target_items:
                     if str(target_item['market']) in my_items_comma :
                         for my_item in my_items:
