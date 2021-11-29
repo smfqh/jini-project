@@ -25,7 +25,7 @@ fees = 0.0005
 K = 0.5
 
 buy_amt = 'M'  
-my_pect = 8
+my_pect = 10
 
 
 def start_second_dream():
