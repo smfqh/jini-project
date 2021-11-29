@@ -11,16 +11,21 @@ import jwt
 from fbprophet import Prophet
 import hashlib
 from urllib.parse import urlencode
+import datetime
+import numpy as np
 
 
 # Keys
-access_key = ""
-secret_key = ""
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
 
 min_order_amt = 5000
+fees = 0.0005
+K = 0.5
+
 buy_amt = 'M'  
-my_pect = 10
+my_pect = 8
 
 
 def start_second_dream():
@@ -32,29 +37,65 @@ def start_second_dream():
         except_items = ""
 
         while True:
+
             # 1. available amt
             available_amt = get_krwbal()['available_krw']
 
             target_items = get_items('KRW', except_items)
 
+            now = datetime.datetime.now()
+            start_time = get_start_time("KRW-BTC")
+            end_time = start_time + datetime.timedelta(days=1)
+
             if buy_amt == 'M':
                 buy_amt = available_amt
 
-            if buy_amt  >  min_order_amt : 
+            if start_time < now < end_time - datetime.timedelta(seconds=10):
 
-                for target_item in target_items:
+                if buy_amt  >  min_order_amt : 
 
-                    current_price = get_current_price(target_item['market'])
-                    predict_price = get_predict_price(target_item['market'])
-                    rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
+                    for target_item in target_items:
 
-                    if Decimal(str(rev_pcnt)) > Decimal(str(my_pect)):
-                        if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
-                            continue
-                        if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
-                            continue
-                        buycoin_mp(target_item['market'], buy_amt)
- 
+                        current_price = get_current_price(target_item['market'])
+                        predict_price = get_predict_price(target_item['market'])
+                        rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
+                        
+                        df = pyupbit.get_ohlcv(target_item['market'], count = 2, interval = "day")
+                        targetPrice = get_targetPrice(df, get_best_K(target_item['market'], fees))   
+
+                        logging.info('')
+                        logging.info('------------------------------------------------------')
+                        logging.info('- 종목:' + str(target_item['market']))
+                        logging.info('- 현재가:' + str(current_price))
+                        logging.info('- 종가 예상:' + str(predict_price))
+                        logging.info('- 수익율 예상:' + str(rev_pcnt))
+                        logging.info('- 목표가 :' + str(targetPrice))
+                        logging.info('------------------------------------------------------')      
+                        logging.info('')
+
+                        if Decimal(str(rev_pcnt)) > Decimal(str(my_pect))  and Decimal(str(targetPrice)) <= Decimal(str(current_price)) : 
+                            
+                            if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
+                                continue
+                            if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
+                                continue
+
+                            buycoin_mp(target_item['market'], buy_amt)                               
+
+            else:
+                # ------------------------------------------------------------------
+                # 보유 종목조회
+                # ------------------------------------------------------------------
+                target_items = get_accounts('Y', 'KRW')
+
+                if len(target_items) > 0 :
+                    # -----------------------------------------------------------------
+                    # 보유 종목별 진행
+                    # -----------------------------------------------------------------
+                    for target_item in target_items:
+                        
+                        sellcoin_mp(target_item['market'], 'Y')
+
 
     except Exception:
         raise 
@@ -69,6 +110,7 @@ def get_start_time(ticker):
 def get_current_price(ticker):
     """current price search"""
     return pyupbit.get_orderbook(ticker=ticker)["orderbook_units"][0]["ask_price"]
+
 
 
 def get_predict_price(ticker):
@@ -95,6 +137,43 @@ def get_predict_price(ticker):
 
     except Exception:
         raise
+
+def get_targetPrice(df, K) :
+    try:    
+        range = df['high'][-2] - df['low'][-2]
+        return df['open'][-1] + range * K
+    except Exception:
+        raise
+
+
+def get_best_K(coin, fees) :
+    try:    
+
+        df = pyupbit.get_ohlcv(coin, interval = "day", count = 21)
+        max_crr = 0
+        best_K = 0.5
+        for k in np.arange(0.0, 1.0, 0.1) :
+            crr = get_crr(df, fees, k)
+            if crr > max_crr :
+                max_crr = crr
+                best_K = k
+        return best_K
+
+    except Exception:
+        raise
+
+
+def get_crr(df, fees, K) :
+    try:    
+
+        df['range'] = df['high'].shift(1) - df['low'].shift(1)
+        df['targetPrice'] = df['open'] + df['range'] * K
+        df['drr'] = np.where(df['high'] > df['targetPrice'], (df['close'] / (1 + fees)) / (df['targetPrice'] * (1 + fees)) , 1)
+        return df['drr'].cumprod()[-2]
+
+    except Exception:
+        raise
+
 
 def get_krwbal():
     try:
