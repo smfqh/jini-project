@@ -14,14 +14,16 @@ import numpy
 import hashlib
 
 # Keys
-access_key = ""
-secret_key = ""
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
 
 
 min_order_amt = 5000
 
 sell_pcnt = 5
+
+loss_cut_pcnt = -3
 
 dcnt_pcnt = -3
 
@@ -44,67 +46,83 @@ def start_seconddream():
             # 보유 종목조회
             # ------------------------------------------------------------------
             target_items = get_accounts('Y', 'KRW')
- 
-            # ------------------------------------------------------------------
-            # 보유 종목 현재가 조회
-            # ------------------------------------------------------------------
-            target_items_comma = chg_account_to_comma(target_items)
-            tickers = get_ticker(target_items_comma)
- 
-            # -----------------------------------------------------------------
-            # 보유 종목별 진행
-            # -----------------------------------------------------------------
-            for target_item in target_items:
-                for ticker in tickers:
-                    if target_item['market'] == ticker['market']:
- 
-                        # -----------------------------------------------------
-                        # 수익률 계산
-                        # ((현재가 - 평균매수가) / 평균매수가) * 100
-                        # -----------------------------------------------------
-                        rev_pcnt = round(((Decimal(str(ticker['trade_price'])) - Decimal(str(target_item['avg_buy_price']))) / Decimal(str(target_item['avg_buy_price']))) * 100, 2)
- 
-                        logging.info('')
-                        logging.info('------------------------------------------------------')
-                        logging.info('- 종목:' + str(target_item['market']))
-                        logging.info('- 평균매수가:' + str(target_item['avg_buy_price']))
-                        logging.info('- 현재가:' + str(ticker['trade_price']))
-                        logging.info('- 수익률:' + str(rev_pcnt))
- 
-                        # -----------------------------------------------------
-                        # 현재 수익률이 매도 수익률 이상인 경우에만 진행
-                        # -----------------------------------------------------
-                        if Decimal(str(rev_pcnt)) < Decimal(str(sell_pcnt)):
-                            logging.info('- 현재 수익률이 매도 수익률 보다 낮아 진행하지 않음!!!')
+
+
+            if len(target_items) > 0 :
+
+                # ------------------------------------------------------------------
+                # 보유 종목 현재가 조회
+                # ------------------------------------------------------------------
+                target_items_comma = chg_account_to_comma(target_items)
+                tickers = get_ticker(target_items_comma)
+
+    
+                # -----------------------------------------------------------------
+                # 보유 종목별 진행
+                # -----------------------------------------------------------------
+                for target_item in target_items:
+                    for ticker in tickers:
+                        if target_item['market'] == ticker['market']:
+    
+                            # -----------------------------------------------------
+                            # 수익률 계산
+                            # ((현재가 - 평균매수가) / 평균매수가) * 100
+                            # -----------------------------------------------------
+                            rev_pcnt = round(((Decimal(str(ticker['trade_price'])) - Decimal(str(target_item['avg_buy_price']))) / Decimal(str(target_item['avg_buy_price']))) * 100, 2)
+    
+                            logging.info('')
                             logging.info('------------------------------------------------------')
-                            continue
+                            logging.info('- 종목:' + str(target_item['market']))
+                            logging.info('- 평균매수가:' + str(target_item['avg_buy_price']))
+                            logging.info('- 현재가:' + str(ticker['trade_price']))
+                            logging.info('- 수익률:' + str(rev_pcnt))
+    
+
+                            # -----------------------------------------------------
+                            # 현재 수익률이 손절 수익률 이하인 경우
+                            # -----------------------------------------------------
+                            if Decimal(str(rev_pcnt)) < Decimal(str(loss_cut_pcnt)):
+                                logging.info('시장가 매도 시작! [' + str(target_item['market']) + ']')
+                                rtn_sellcoin_mp = sellcoin_mp(target_item['market'], 'Y')
+                                logging.info('시장가 매도 종료! [' + str(target_item['market']) + ']')
+                                logging.info(rtn_sellcoin_mp)
+                                logging.info('------------------------------------------------------')
+                            
+
+                            # -----------------------------------------------------
+                            # 현재 수익률이 매도 수익률 이상인 경우에만 진행
+                            # -----------------------------------------------------
+                            if Decimal(str(rev_pcnt)) < Decimal(str(sell_pcnt)):
+                                logging.info('- 현재 수익률이 매도 수익률 보다 낮아 진행하지 않음!!!')
+                                logging.info('------------------------------------------------------')
+                                continue
 
 
-                        # -----------------------------------------------------
-                        # 고점대비 하락률
-                        # ((현재가 - 최고가) / 최고가) * 100
-                        # -----------------------------------------------------
-                        cur_dcnt_pcnt = round(((Decimal(str(ticker['trade_price'])) - Decimal(str(ticker['high_price']))) / Decimal(str(ticker['high_price']))) * 100, 2)
+                            # -----------------------------------------------------
+                            # 고점대비 하락률
+                            # ((현재가 - 최고가) / 최고가) * 100
+                            # -----------------------------------------------------
+                            cur_dcnt_pcnt = round(((Decimal(str(ticker['trade_price'])) - Decimal(str(ticker['high_price']))) / Decimal(str(ticker['high_price']))) * 100, 2)
 
-                        logging.info('- 금일 최고가:' + str(ticker['high_price']))
-                        logging.info('- 고점대비 하락률:' + str(cur_dcnt_pcnt))
-                        
-                        if Decimal(str(cur_dcnt_pcnt)) < Decimal(str(dcnt_pcnt)):
-                                
-                            # ------------------------------------------------------------------
-                            # 시장가 매도
-                            # 실제 매도 로직은 안전을 위해 주석처리 하였습니다.
-                            # 실제 매매를 원하시면 테스트를 충분히 거친 후 주석을 해제하시면 됩니다.
-                            # ------------------------------------------------------------------
-                            logging.info('시장가 매도 시작! [' + str(target_item['market']) + ']')
-                            rtn_sellcoin_mp = sellcoin_mp(target_item['market'], 'Y')
-                            logging.info('시장가 매도 종료! [' + str(target_item['market']) + ']')
-                            logging.info(rtn_sellcoin_mp)
-                            logging.info('------------------------------------------------------')
+                            logging.info('- 금일 최고가:' + str(ticker['high_price']))
+                            logging.info('- 고점대비 하락률:' + str(cur_dcnt_pcnt))
+                            
+                            if Decimal(str(cur_dcnt_pcnt)) < Decimal(str(dcnt_pcnt)):
+                                    
+                                # ------------------------------------------------------------------
+                                # 시장가 매도
+                                # 실제 매도 로직은 안전을 위해 주석처리 하였습니다.
+                                # 실제 매매를 원하시면 테스트를 충분히 거친 후 주석을 해제하시면 됩니다.
+                                # ------------------------------------------------------------------
+                                logging.info('시장가 매도 시작! [' + str(target_item['market']) + ']')
+                                rtn_sellcoin_mp = sellcoin_mp(target_item['market'], 'Y')
+                                logging.info('시장가 매도 종료! [' + str(target_item['market']) + ']')
+                                logging.info(rtn_sellcoin_mp)
+                                logging.info('------------------------------------------------------')
 
-                        else:
-                            logging.info('- 고점 대비 하락률 조건에 맞지 않아 매도하지 않음!!!')
-                            logging.info('------------------------------------------------------')
+                            else:
+                                logging.info('- 고점 대비 하락률 조건에 맞지 않아 매도하지 않음!!!')
+                                logging.info('------------------------------------------------------')
 
     except Exception:
         raise
