@@ -14,16 +14,14 @@ from urllib.parse import urlencode
 
 
 # Keys
-access_key = ""
-secret_key = ""
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
-
 
 min_order_amt = 5000
 buy_amt = 'M'  
-my_pect = 15
-rebuy_pcnt = -10
-loss_cut_pcnt = 1.07
+my_pect = 10
+
 
 def start_second_dream():
     try: 
@@ -36,57 +34,27 @@ def start_second_dream():
         while True:
             # 1. available amt
             available_amt = get_krwbal()['available_krw']
-            my_items = get_accounts('Y','KRW')
-            my_items_comma = chg_account_to_comma(my_items)
+
             target_items = get_items('KRW', except_items)
 
             if buy_amt == 'M':
                 buy_amt = available_amt
 
             if buy_amt  >  min_order_amt : 
+
                 for target_item in target_items:
-                    if str(target_item['market']) in my_items_comma :
-                        for my_item in my_items:
-                            if target_item['market'] == my_item['market']:
-                                predict_price = get_predict_price(target_item['market'])
-                                current_price = get_current_price(target_item['market'])                            
-                                rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
-                                re_buy_pcnt = round(((Decimal(str(current_price)) - Decimal(str(my_item['avg_buy_price']))) / Decimal(str(my_item['avg_buy_price']))) * 100, 2)
 
-                                if Decimal(str(float(my_item['avg_buy_price'])*loss_cut_pcnt)) >=  Decimal(str(predict_price)) :
+                    current_price = get_current_price(target_item['market'])
+                    predict_price = get_predict_price(target_item['market'])
+                    rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
 
-                                    sellcoin_mp(my_item['market'], 'Y')    
-
-                                elif Decimal(str(rev_pcnt)) > Decimal(str(my_pect)) and Decimal(str(re_buy_pcnt)) < Decimal(str(rebuy_pcnt)):
-
-                                    if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
-                                        continue
-
-                                    if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
-                                        continue
-
-                                    buycoin_mp(target_item['market'], buy_amt)
-            
-                    else:
-                        current_price = get_current_price(target_item['market'])
-                        predict_price = get_predict_price(target_item['market'])
-                        rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
-
-                        if Decimal(str(rev_pcnt)) > Decimal(str(my_pect)):
-                            if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
-                                continue
-                            if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
-                                continue
-                            buycoin_mp(target_item['market'], buy_amt)
-            else :
-                for target_item in target_items:
-                    if str(target_item['market']) in my_items_comma :
-                        for my_item in my_items:
-                            if target_item['market'] == my_item['market']:
-                                predict_price = get_predict_price(target_item['market'])
-
-                                if Decimal(str(float(my_item['avg_buy_price'])*loss_cut_pcnt)) >=  Decimal(str(predict_price)) :
-                                    sellcoin_mp(my_item['market'], 'Y')    
+                    if Decimal(str(rev_pcnt)) > Decimal(str(my_pect)):
+                        if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
+                            continue
+                        if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
+                            continue
+                        buycoin_mp(target_item['market'], buy_amt)
+ 
 
     except Exception:
         raise 
