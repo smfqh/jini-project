@@ -47,6 +47,7 @@ def start_seconddream():
             # ------------------------------------------------------------------
             target_items = get_accounts('Y', 'KRW')
 
+            # print(target_items)
 
             if len(target_items) > 0 :
 
@@ -76,15 +77,16 @@ def start_seconddream():
                             logging.info('- 평균매수가:' + str(target_item['avg_buy_price']))
                             logging.info('- 현재가:' + str(ticker['trade_price']))
                             logging.info('- 수익률:' + str(rev_pcnt))
-    
+                            logging.info('- 금일 최고가:' + str(ticker['high_price']))    
+                            logging.info('------------------------------------------------------')                            
 
                             # -----------------------------------------------------
                             # 현재 수익률이 손절 수익률 이하인 경우
                             # -----------------------------------------------------
                             if Decimal(str(rev_pcnt)) < Decimal(str(loss_cut_pcnt)):
-                                logging.info('시장가 매도 시작! [' + str(target_item['market']) + ']')
+                                logging.info('시장가 손절 시작! [' + str(target_item['market']) + ']')
                                 rtn_sellcoin_mp = sellcoin_mp(target_item['market'], 'Y')
-                                logging.info('시장가 매도 종료! [' + str(target_item['market']) + ']')
+                                logging.info('시장가 손절 종료! [' + str(target_item['market']) + ']')
                                 logging.info(rtn_sellcoin_mp)
                                 logging.info('------------------------------------------------------')
                             
@@ -92,37 +94,14 @@ def start_seconddream():
                             # -----------------------------------------------------
                             # 현재 수익률이 매도 수익률 이상인 경우에만 진행
                             # -----------------------------------------------------
-                            if Decimal(str(rev_pcnt)) < Decimal(str(sell_pcnt)):
-                                logging.info('- 현재 수익률이 매도 수익률 보다 낮아 진행하지 않음!!!')
-                                logging.info('------------------------------------------------------')
-                                continue
-
-
-                            # -----------------------------------------------------
-                            # 고점대비 하락률
-                            # ((현재가 - 최고가) / 최고가) * 100
-                            # -----------------------------------------------------
-                            cur_dcnt_pcnt = round(((Decimal(str(ticker['trade_price'])) - Decimal(str(ticker['high_price']))) / Decimal(str(ticker['high_price']))) * 100, 2)
-
-                            logging.info('- 금일 최고가:' + str(ticker['high_price']))
-                            logging.info('- 고점대비 하락률:' + str(cur_dcnt_pcnt))
-                            
-                            if Decimal(str(cur_dcnt_pcnt)) < Decimal(str(dcnt_pcnt)):
-                                    
-                                # ------------------------------------------------------------------
-                                # 시장가 매도
-                                # 실제 매도 로직은 안전을 위해 주석처리 하였습니다.
-                                # 실제 매매를 원하시면 테스트를 충분히 거친 후 주석을 해제하시면 됩니다.
-                                # ------------------------------------------------------------------
+                            if Decimal(str(rev_pcnt)) > Decimal(str(sell_pcnt)):
                                 logging.info('시장가 매도 시작! [' + str(target_item['market']) + ']')
                                 rtn_sellcoin_mp = sellcoin_mp(target_item['market'], 'Y')
                                 logging.info('시장가 매도 종료! [' + str(target_item['market']) + ']')
                                 logging.info(rtn_sellcoin_mp)
                                 logging.info('------------------------------------------------------')
 
-                            else:
-                                logging.info('- 고점 대비 하락률 조건에 맞지 않아 매도하지 않음!!!')
-                                logging.info('------------------------------------------------------')
+
 
     except Exception:
         raise
