@@ -25,7 +25,7 @@ fees = 0.0005
 K = 0.5
 
 buy_amt = 'M'  
-my_pect = 5
+my_pect = 7
 
 
 def start_second_dream():
@@ -53,7 +53,7 @@ def start_second_dream():
 
             if start_time < now < end_time - datetime.timedelta(seconds=60):
 
-                if buy_amt  >  min_order_amt : 
+                if Decimal(str(available_amt))  >  Decimal(str(min_order_amt)) : 
 
                     for target_item in target_items:
 
@@ -66,7 +66,7 @@ def start_second_dream():
                         pre_pcnt = round((Decimal(str(predict_price)) - Decimal(str(targetPrice))) / Decimal(str(predict_price)) * 100 , 2)
 
  
-                        if Decimal(str(pre_pcnt)) > Decimal(str(my_pect))  and Decimal(str(targetPrice)) <= Decimal(str(current_price)) : 
+                        if Decimal(str(rev_pcnt)) > Decimal(str(my_pect))  and Decimal(str(targetPrice)) <= Decimal(str(current_price)) : 
 
                             logging.info('------------------------------------------------------')
                             logging.info('- 종목:' + str(target_item['market']))
@@ -84,7 +84,9 @@ def start_second_dream():
                             if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
                                 continue
 
-                            buycoin_mp(target_item['market'], buy_amt)                               
+                            buycoin_mp(target_item['market'], buy_amt)
+
+                            break                               
 
             else:
                 # ------------------------------------------------------------------
