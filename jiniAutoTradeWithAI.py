@@ -16,8 +16,8 @@ import numpy as np
 
 
 # Keys
-access_key = ""
-secret_key = ""
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
 
 min_order_amt = 5000
@@ -25,7 +25,7 @@ fees = 0.0005
 K = 0.5
 
 buy_amt = 'M'  
-my_pect = 10
+my_pect = 5
 
 
 def start_second_dream():
@@ -50,7 +50,8 @@ def start_second_dream():
             if buy_amt == 'M':
                 buy_amt = available_amt
 
-            if start_time < now < end_time - datetime.timedelta(seconds=10):
+
+            if start_time < now < end_time - datetime.timedelta(seconds=60):
 
                 if buy_amt  >  min_order_amt : 
 
@@ -59,24 +60,27 @@ def start_second_dream():
                         current_price = get_current_price(target_item['market'])
                         predict_price = get_predict_price(target_item['market'])
                         rev_pcnt = round((Decimal(str(predict_price)) - Decimal(str(current_price))) / Decimal(str(predict_price)) * 100 , 2)
-                        
+
                         df = pyupbit.get_ohlcv(target_item['market'], count = 2, interval = "day")
                         targetPrice = get_targetPrice(df, get_best_K(target_item['market'], fees))   
+                        pre_pcnt = round((Decimal(str(predict_price)) - Decimal(str(targetPrice))) / Decimal(str(predict_price)) * 100 , 2)
 
-                        logging.info('')
-                        logging.info('------------------------------------------------------')
-                        logging.info('- 종목:' + str(target_item['market']))
-                        logging.info('- 현재가:' + str(current_price))
-                        logging.info('- 종가 예상:' + str(predict_price))
-                        logging.info('- 수익율 예상:' + str(rev_pcnt))
-                        logging.info('- 목표가 :' + str(targetPrice))
-                        logging.info('------------------------------------------------------')      
-                        logging.info('')
+ 
+                        if Decimal(str(pre_pcnt)) > Decimal(str(my_pect))  and Decimal(str(targetPrice)) <= Decimal(str(current_price)) : 
 
-                        if Decimal(str(rev_pcnt)) > Decimal(str(my_pect))  and Decimal(str(targetPrice)) <= Decimal(str(current_price)) : 
-                            
+                            logging.info('------------------------------------------------------')
+                            logging.info('- 종목:' + str(target_item['market']))
+                            logging.info('- 현재가:' + str(current_price))
+                            logging.info('- 종가 예상:' + str(predict_price))
+                            logging.info('- 수익율 예상:' + str(rev_pcnt))
+                            logging.info('- 목표가 :' + str(targetPrice))
+                            logging.info('- 예상 수익율 :' + str(pre_pcnt))
+                            logging.info('------------------------------------------------------')   
+
+
                             if Decimal(str(available_amt)) < Decimal(str(buy_amt)):
                                 continue
+                           
                             if Decimal(str(buy_amt)) < Decimal(str(min_order_amt)):
                                 continue
 
@@ -95,6 +99,8 @@ def start_second_dream():
                     for target_item in target_items:
                         
                         sellcoin_mp(target_item['market'], 'Y')
+
+                        time.sleep(2)                        
 
 
     except Exception:
