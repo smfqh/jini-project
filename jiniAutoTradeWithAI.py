@@ -16,9 +16,11 @@ import numpy as np
 
 
 # Keys
-access_key = ""
-secret_key = ""
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
+
+myToken = "xoxb-2661832779078-2681175828737-OysCR9tlUmolHOcS4A0OvTDi"
 
 min_order_amt = 5000
 fees = 0.0005
@@ -35,6 +37,7 @@ def start_second_dream():
         # except_items = "MANA,SAND"
         global buy_amt
         except_items = ""
+        notice_amt = 0
 
         while True:
 
@@ -57,6 +60,12 @@ def start_second_dream():
 
 
             if start_time < now < end_time - datetime.timedelta(minutes=10):
+
+                if notice_amt == 0 :
+                    post_message(myToken, "#upbit-jin", "available_amt: " +str(available_amt))
+                    notice_amt = 1
+                    
+                
 
                 if Decimal(str(available_amt))  >=  Decimal(str(buy_amt)) and Decimal(str(available_amt))  > Decimal(str(min_order_amt)) : 
 
@@ -115,9 +124,14 @@ def start_second_dream():
                         
                         sellcoin_mp(target_item['market'], 'Y')
 
-                        time.sleep(2)                        
+                        time.sleep(1)                        
 
                     except_items = ""
+
+                    if notice_amt == 1 :
+                        notice_amt == 0 
+
+
 
     except Exception:
         raise 
@@ -127,6 +141,15 @@ def get_start_time(ticker):
     df = pyupbit.get_ohlcv(ticker, interval="day", count=1)
     start_time = df.index[0]
     return start_time
+
+
+
+def post_message(token, channel, text):
+    """슬랙 메시지 전송"""
+    response = requests.post("https://slack.com/api/chat.postMessage",
+        headers={"Authorization": "Bearer "+token},
+        data={"channel": channel,"text": text}
+    )
 
 
 def get_current_price(ticker):
