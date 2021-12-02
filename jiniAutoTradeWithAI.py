@@ -32,7 +32,7 @@ my_pect = 7
 
 def start_second_dream():
     try: 
-        set_loglevel("I")
+        set_loglevel("E")
         
         # except_items = "MANA,SAND"
         global buy_amt
