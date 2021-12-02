@@ -16,11 +16,11 @@ import numpy as np
 
 
 # Keys
-access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
-secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
+access_key = ""
+secret_key = ""
 server_url = 'https://api.upbit.com'
 
-myToken = "xoxb-2661832779078-2681175828737-OysCR9tlUmolHOcS4A0OvTDi"
+myToken = ""
 
 min_order_amt = 5000
 fees = 0.0005
