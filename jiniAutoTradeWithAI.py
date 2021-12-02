@@ -16,8 +16,8 @@ import numpy as np
 
 
 # Keys
-access_key = ""
-secret_key = ""
+access_key = "obxBT66Cx8fJsnww9TAfJwMKUx443RBiElaZRq1b"
+secret_key = "wKUSQ8GaxDDC1BNcPWrNBjYQIP7ncEyv07j4TXTV"
 server_url = 'https://api.upbit.com'
 
 min_order_amt = 5000
@@ -30,7 +30,7 @@ my_pect = 7
 
 def start_second_dream():
     try: 
-        set_loglevel("E")
+        set_loglevel("I")
         
         # except_items = "MANA,SAND"
         global buy_amt
@@ -50,10 +50,15 @@ def start_second_dream():
             if buy_amt == 'M':
                 buy_amt = available_amt
 
+            logging.info('------------------------------------------------------')
+            logging.info('- 가용금액:' + str(available_amt))
+            logging.info('- 제외종목:' + str(except_items))            
+            logging.info('------------------------------------------------------')
 
-            if start_time < now < end_time - datetime.timedelta(seconds=60):
 
-                if Decimal(str(available_amt))  >  Decimal(str(min_order_amt)) : 
+            if start_time < now < end_time - datetime.timedelta(minutes=10):
+
+                if Decimal(str(available_amt))  >=  Decimal(str(buy_amt)) and Decimal(str(available_amt))  > Decimal(str(min_order_amt)) : 
 
                     for target_item in target_items:
 
@@ -86,7 +91,15 @@ def start_second_dream():
 
                             buycoin_mp(target_item['market'], buy_amt)
 
-                            break                               
+                            # ------------------------------------------------------------------
+                            # 매수 완료 종목은 매수 대상에서 제외
+                            # ------------------------------------------------------------------
+                            if except_items.strip():
+                                except_items = except_items + ',' + target_item['market'].split('-')[1]
+                            else:
+                                except_items = target_item['market'].split('-')[1]
+
+
 
             else:
                 # ------------------------------------------------------------------
@@ -104,6 +117,7 @@ def start_second_dream():
 
                         time.sleep(2)                        
 
+                    except_items = ""
 
     except Exception:
         raise 
