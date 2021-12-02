@@ -661,9 +661,7 @@ if __name__ == '__main__':
     # noinspection PyBroadException
     try:
  
-        # 1. loglevel setting
-
-         # 매수 로직 시작
+       # 매수 로직 시작
         start_second_dream()
         
  
