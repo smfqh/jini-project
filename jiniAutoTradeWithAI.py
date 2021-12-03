@@ -23,17 +23,16 @@ server_url = 'https://api.upbit.com'
 min_order_amt = 5000
 fees = 0.0005
 K = 0.5
-
-buy_amt = 500000  
 my_pect = 7
 sell_pcnt = 1.5
+basic_amt = 500000
 
 
 def start_second_dream():
     try: 
-        set_loglevel("E")
+        set_loglevel("I")
         
-        global buy_amt
+        buy_amt = 10000 
 
         while True:
 
@@ -69,8 +68,11 @@ def start_second_dream():
             # 금액 세팅
             # ------------------------------------------------------------------
 
-            if Decimal(str(available_amt)) <  Decimal(str(buy_amt)) and Decimal(str(available_amt)) > Decimal(str(min_order_amt)) :
+            if Decimal(str(available_amt)) <  Decimal(str(basic_amt)) and Decimal(str(available_amt)) > Decimal(str(min_order_amt)) :
                 buy_amt = available_amt 
+
+            else :
+                buy_amt = basic_amt
 
 
             logging.info("*********************************************************")
