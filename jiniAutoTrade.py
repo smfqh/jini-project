@@ -47,7 +47,7 @@ def start_second_dream():
         # ------------------------------------------------------------------
         # log 기준
         # ------------------------------------------------------------------
-        set_loglevel("I")
+        set_loglevel("E")
 
         while True:
 
@@ -191,7 +191,7 @@ def start_second_dream():
                                         logging.info('시장가 매도 종료! [' + str(my_item['market']) + ']')
                                         logging.info('------------------------------------------------------') 
                                             
-                            time.sleep(1)
+                            time.sleep(2)
 
                 income_val = tot_present_val - tot_buy
                 tot_pcnt = (tot_present_val - tot_buy ) / tot_buy * 100      
