@@ -39,8 +39,6 @@ upbit = pyupbit.Upbit(access_key, secret_key)
 def start_second_dream():
     try: 
 
-        global item_buy_amt
-        
         # ------------------------------------------------------------------
         # log 기준 및 세팅 확인
         # ------------------------------------------------------------------
